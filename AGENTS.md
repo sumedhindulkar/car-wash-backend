@@ -118,6 +118,7 @@ Do not introduce another framework, database, message broker, cache, ORM, or maj
 Use a modular layered architecture.
 
 ```text
+server.ts
 src/
 ├── config/
 ├── constants/
@@ -128,8 +129,7 @@ src/
 ├── routes/
 ├── types/
 ├── utils/
-├── app.ts
-└── server.ts
+└── app.ts
 ````
 
 Responsibilities:
