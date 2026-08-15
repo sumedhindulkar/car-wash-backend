@@ -1,0 +1,19 @@
+POST /api/v1/users
+curl -X POST "http://localhost:6000/api/v1/users" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"phoneNumber\": \"9876543210\",
+    \"name\": \"Rahul Sharma\",
+    \"email\": \"rahul.sharma@example.com\"
+  }"
+
+PATCH /api/v1/users/:id
+curl -X PATCH "http://localhost:6000/api/v1/users/USER_ID" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Rahul S\",
+    \"email\": \"rahul.s@example.com\"
+  }"
+
+DELETE /api/v1/users/:id
+curl -X DELETE "http://localhost:6000/api/v1/users/USER_ID"

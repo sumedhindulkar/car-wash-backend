@@ -8,7 +8,6 @@ export type CreateUserInput = {
 };
 
 export type UpdateUserInput = {
-  phoneNumber?: string;
   name?: string;
   email?: string;
 };

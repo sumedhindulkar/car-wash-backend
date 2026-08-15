@@ -59,19 +59,17 @@ export async function update(
   next: NextFunction,
 ): Promise<void> {
   try {
+    if (req.body?.phoneNumber !== undefined) {
+      throw new AppError(
+        'Phone number cannot be updated',
+        HTTP_STATUS.BAD_REQUEST,
+      );
+    }
+
     const updates: {
-      phoneNumber?: string;
       name?: string;
       email?: string;
     } = {};
-
-    if (req.body?.phoneNumber !== undefined) {
-      const phoneNumber = readOptionalString(req.body.phoneNumber);
-      if (phoneNumber === undefined || phoneNumber.trim() === '') {
-        throw new AppError('Phone number cannot be empty', HTTP_STATUS.BAD_REQUEST);
-      }
-      updates.phoneNumber = phoneNumber.trim();
-    }
 
     if (req.body?.name !== undefined) {
       updates.name = readOptionalString(req.body.name);
@@ -83,7 +81,7 @@ export async function update(
 
     if (Object.keys(updates).length === 0) {
       throw new AppError(
-        'Provide at least one field to update: phoneNumber, name, or email',
+        'Provide at least one field to update: name or email',
         HTTP_STATUS.BAD_REQUEST,
       );
     }
