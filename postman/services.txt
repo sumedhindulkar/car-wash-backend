@@ -1,0 +1,23 @@
+GET /api/v1/services
+curl -X GET "http://localhost:6000/api/v1/services"
+
+GET /api/v1/services?vehicleType=car
+curl -X GET "http://localhost:6000/api/v1/services?vehicleType=car"
+
+GET /api/v1/services?category=basic
+curl -X GET "http://localhost:6000/api/v1/services?category=basic"
+
+GET /api/v1/services?active=true
+curl -X GET "http://localhost:6000/api/v1/services?active=true"
+
+GET /api/v1/services?vehicleType=bike&category=premium&active=true
+curl -X GET "http://localhost:6000/api/v1/services?vehicleType=bike&category=premium&active=true"
+
+PATCH /api/v1/services/:id
+curl -X PATCH "http://localhost:6000/api/v1/services/basic-car-wash" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"title\": \"Basic Car Wash\",
+    \"description\": \"A quick & effective wash for your everyday clean car.\",
+    \"active\": true
+  }"

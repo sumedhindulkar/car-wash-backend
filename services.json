@@ -1,0 +1,404 @@
+[
+  {
+    "id": "basic-car-wash",
+    "title": "Basic Car Wash",
+    "vehicleType": "car",
+    "category": "basic",
+    "description": "A quick & effective wash for your everyday clean car.",
+    "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bucket-wash.png",
+    "image": "basic-car.webp",
+    "active": true,
+    "items": [
+      {
+        "id": "bucket-wash",
+        "title": "Bucket Wash (Exterior)",
+        "description": "High pressure bucket wash & tyre polish.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bucket-wash.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/windshield-cleaning.png",
+        "pricing": {
+          "oneTime": 250,
+          "monthly": null
+        },
+        "durationMinutes": 15,
+        "mandatory": true,
+        "selected": true,
+        "active": true,
+        "monthlyRule": "every_visit"
+      },
+      {
+        "id": "interior-cleaning",
+        "title": "Basic Interior Cleaning",
+        "description": "Vacuum & clean basic interior surfaces.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/basic-interior-cleaning.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/basic-interior-cleaning.png",
+        "pricing": {
+          "oneTime": 120,
+          "monthly": null
+        },
+        "durationMinutes": 10,
+        "mandatory": false,
+        "selected": true,
+        "active": true,
+        "monthlyRule": "multiple"
+      },
+      {
+        "id": "dashboard-polish",
+        "title": "Dashboard Polish",
+        "description": "Shine & protect dashboard.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/dashboard-polish.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/dashboard-polish.png",
+        "pricing": {
+          "oneTime": 100,
+          "monthly": null
+        },
+        "durationMinutes": 4,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "air-freshener",
+        "title": "Air Freshener",
+        "description": "Long lasting fresh fragrance.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/air-freshner.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/air-freshner.png",
+        "pricing": {
+          "oneTime": 100,
+          "monthly": null
+        },
+        "durationMinutes": 1,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "rat-repellent",
+        "title": "Rat Repellent",
+        "description": "Protect your car from rats.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/air-fresh-2.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/rat-repellent.png",
+        "pricing": {
+          "oneTime": 120,
+          "monthly": null
+        },
+        "durationMinutes": 5,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "wet-wipes",
+        "title": "Tissue Box (Wet Wipes)",
+        "description": "Handy wet wipes for quick cleanups.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/air-fresh-2.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/wet-wipes.png",
+        "pricing": {
+          "oneTime": 28,
+          "monthly": null
+        },
+        "durationMinutes": 1,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      }
+    ]
+  },
+
+  {
+    "id": "premium-car-wash",
+    "title": "Pressure Car Wash",
+    "vehicleType": "car",
+    "category": "premium",
+    "description": "Premium pressure foam wash with deep cleaning.",
+    "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/car-polish.png",
+    "image": "premium-car.webp",
+    "active": true,
+    "items": [
+      {
+        "id": "foam-wash",
+        "title": "Exterior Foam Wash & Tyre Polish",
+        "description": "High pressure foam wash with tyre polish.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/car-polish.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/windshield-cleaning.png",
+        "pricing": {
+          "oneTime": 600,
+          "monthly": null
+        },
+        "durationMinutes": 20,
+        "mandatory": true,
+        "selected": true,
+        "active": true,
+        "monthlyRule": "every_visit"
+      },
+      {
+        "id": "interior-vacuum",
+        "title": "Interior Vacuum & Dashboard Polish",
+        "description": "Deep vacuum and dashboard shine.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/basic-interior-cleaning.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/interior-vaccum-clean.png",
+        "pricing": {
+          "oneTime": 198,
+          "monthly": null
+        },
+        "durationMinutes": 12,
+        "mandatory": false,
+        "selected": true,
+        "active": true,
+        "monthlyRule": "multiple"
+      },
+      {
+        "id": "underbody-cleaning",
+        "title": "Underbody Cleaning",
+        "description": "Clean and protect the underbody.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/car-polish.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/under-car-cleaning.png",
+        "pricing": {
+          "oneTime": 98,
+          "monthly": null
+        },
+        "durationMinutes": 8,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "air-freshener",
+        "title": "Air Freshener",
+        "description": "Long lasting fresh fragrance.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/air-freshner.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/air-freshner.png",
+        "pricing": {
+          "oneTime": 73,
+          "monthly": null
+        },
+        "durationMinutes": 1,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "hybrid-ceramic",
+        "title": "Hybrid Ceramic Coat",
+        "description": "Protective ceramic coating layer.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/car-polish.png",
+        "pricing": {
+          "oneTime": 255,
+          "monthly": null
+        },
+        "durationMinutes": 15,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "rat-repellent",
+        "title": "Rat Repellent",
+        "description": "Protect your car from rats.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/air-fresh-2.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/rat-repellent.png",
+        "pricing": {
+          "oneTime": 150,
+          "monthly": null
+        },
+        "durationMinutes": 5,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "wet-wipes",
+        "title": "Tissue Box (Wet Wipes)",
+        "description": "Handy wet wipes for quick cleanups.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/air-fresh-2.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/wet-wipes.png",
+        "pricing": {
+          "oneTime": 28,
+          "monthly": null
+        },
+        "durationMinutes": 1,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      }
+    ]
+  },
+
+  {
+    "id": "basic-bike-wash",
+    "title": "Basic Bike Wash",
+    "vehicleType": "bike",
+    "category": "basic",
+    "description": "A quick & effective ceramic wash for your bike.",
+    "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bike-wash.png",
+    "image": "basic-bike.webp",
+    "active": true,
+    "items": [
+      {
+        "id": "bike-ceramic",
+        "title": "Bike Ceramic Wash & Tyre Wash",
+        "description": "Ceramic wash with tyre cleaning.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bike-wash.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/bike-wash.png",
+        "pricing": {
+          "oneTime": 220,
+          "monthly": null
+        },
+        "durationMinutes": 10,
+        "mandatory": true,
+        "selected": true,
+        "active": true,
+        "monthlyRule": "every_visit"
+      },
+      {
+        "id": "helmet-cleaning",
+        "title": "Deep Helmet Cleaning",
+        "description": "Sanitize and refresh your helmet.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/deep-helmet.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/helmet-cleaning.png",
+        "pricing": {
+          "oneTime": 89,
+          "monthly": null
+        },
+        "durationMinutes": 8,
+        "mandatory": false,
+        "selected": true,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "plastic-polish",
+        "title": "Bike Exterior Plastic Polish",
+        "description": "Restore shine to plastic parts.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bike-polish.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/bike-polish.png",
+        "pricing": {
+          "oneTime": 58,
+          "monthly": null
+        },
+        "durationMinutes": 5,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "dicky-cleaning",
+        "title": "Dicky Cleaning",
+        "description": "Clean and freshen the storage box.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bike-polish.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/dicky-cleaning.png",
+        "pricing": {
+          "oneTime": 59,
+          "monthly": null
+        },
+        "durationMinutes": 5,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      }
+    ]
+  },
+
+  {
+    "id": "premium-bike-wash",
+    "title": "Pressure Bike Wash",
+    "vehicleType": "bike",
+    "category": "premium",
+    "description": "Premium pressure wash with detailing.",
+    "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bike-wash.png",
+    "image": "premium-bike.webp",
+    "active": true,
+    "items": [
+      {
+        "id": "pressure-foam",
+        "title": "Bike Pressure Foam Wash",
+        "description": "Deep foam wash under pressure.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bike-wash.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/bike-wash.png",
+        "pricing": {
+          "oneTime": 318,
+          "monthly": null
+        },
+        "durationMinutes": 15,
+        "mandatory": true,
+        "selected": true,
+        "active": true,
+        "monthlyRule": "every_visit"
+      },
+      {
+        "id": "hybrid-ceramic",
+        "title": "Bike Hybrid Ceramic Coating",
+        "description": "Protective ceramic coating for bikes.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bike-wash.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/bike-polish.png",
+        "pricing": {
+          "oneTime": 78,
+          "monthly": null
+        },
+        "durationMinutes": 15,
+        "mandatory": false,
+        "selected": true,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "helmet-cleaning",
+        "title": "Deep Helmet Cleaning",
+        "description": "Sanitize and refresh your helmet.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/deep-helmet.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/helmet-cleaning.png",
+        "pricing": {
+          "oneTime": 89,
+          "monthly": null
+        },
+        "durationMinutes": 8,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "dicky-cleaning",
+        "title": "Dicky Cleaning",
+        "description": "Clean and freshen the storage box.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/bike-polish.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/dicky-cleaning.png",
+        "pricing": {
+          "oneTime": 59,
+          "monthly": null
+        },
+        "durationMinutes": 5,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      },
+      {
+        "id": "alloy-wheel-cleaning",
+        "title": "Alloy Wheel Cleaning",
+        "description": "Deep clean for alloy wheels.",
+        "image": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/alloy-wheel.png",
+        "bannerImage": "https://car-wash-prod.s3.ap-south-1.amazonaws.com/services/alloy-wheel-cleaning.png",
+        "pricing": {
+          "oneTime": 71,
+          "monthly": null
+        },
+        "durationMinutes": 7,
+        "mandatory": false,
+        "selected": false,
+        "active": true,
+        "monthlyRule": "once"
+      }
+    ]
+  }
+]

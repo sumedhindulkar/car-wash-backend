@@ -1120,14 +1120,15 @@ Prefer composition over complicated inheritance.
 Before starting a task:
 
 1. Read `AGENTS.md`.
-2. Inspect the relevant project structure.
-3. Search for existing implementations.
-4. Understand the current pattern.
-5. Identify the smallest correct change.
-6. Implement using existing conventions.
-7. Check for side effects.
-8. Run relevant tests/type checks.
-9. Review the final diff.
+2. Read `LEARNER.md` for past mistakes to avoid repeating them.
+3. Inspect the relevant project structure.
+4. Search for existing implementations.
+5. Understand the current pattern.
+6. Identify the smallest correct change.
+7. Implement using existing conventions.
+8. Check for side effects.
+9. Run relevant tests/type checks.
+10. Review the final diff.
 
 Do not start coding immediately after reading only the task description.
 

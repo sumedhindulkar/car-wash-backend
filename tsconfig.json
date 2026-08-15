@@ -13,6 +13,6 @@
     "declaration": false,
     "sourceMap": true
   },
-  "include": ["server.ts", "src/**/*"],
+  "include": ["server.ts", "src/**/*", "seeds/**/*", "services.json"],
   "exclude": ["node_modules", "dist"]
 }
