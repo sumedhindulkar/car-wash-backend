@@ -9,22 +9,6 @@ import {
 import { SuccessResponse } from '../types/api-response';
 import { AppError } from '../utils/app-error';
 
-function readRouteId(value: string | string[]): string {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function readOptionalString(value: unknown): string | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  if (typeof value !== 'string') {
-    throw new AppError('Invalid field type: expected string', HTTP_STATUS.BAD_REQUEST);
-  }
-
-  return value;
-}
-
 export async function create(
   req: Request,
   res: Response,
@@ -38,8 +22,8 @@ export async function create(
 
     const user = await createUser({
       phoneNumber: phoneNumber.trim(),
-      name: readOptionalString(req.body?.name),
-      email: readOptionalString(req.body?.email),
+      name: req.body?.name,
+      email: req.body?.email,
     });
 
     const body: SuccessResponse<ReturnType<typeof toUserResponse>> = {
@@ -60,33 +44,22 @@ export async function update(
 ): Promise<void> {
   try {
     if (req.body?.phoneNumber !== undefined) {
-      throw new AppError(
-        'Phone number cannot be updated',
-        HTTP_STATUS.BAD_REQUEST,
-      );
+      throw new AppError('Phone number cannot be updated', HTTP_STATUS.BAD_REQUEST);
     }
 
-    const updates: {
-      name?: string;
-      email?: string;
-    } = {};
-
-    if (req.body?.name !== undefined) {
-      updates.name = readOptionalString(req.body.name);
-    }
-
-    if (req.body?.email !== undefined) {
-      updates.email = readOptionalString(req.body.email);
-    }
-
-    if (Object.keys(updates).length === 0) {
+    const { name, email } = req.body ?? {};
+    if (name === undefined && email === undefined) {
       throw new AppError(
         'Provide at least one field to update: name or email',
         HTTP_STATUS.BAD_REQUEST,
       );
     }
 
-    const user = await updateUserById(readRouteId(req.params.id), updates);
+    const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const user = await updateUserById(userId, {
+      ...(name !== undefined ? { name } : {}),
+      ...(email !== undefined ? { email } : {}),
+    });
     if (!user) {
       throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
     }
@@ -108,7 +81,8 @@ export async function remove(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const user = await deleteUserById(readRouteId(req.params.id));
+    const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const user = await deleteUserById(userId);
     if (!user) {
       throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
     }
