@@ -1,15 +1,32 @@
 import {
-  IService,
   IServiceDocument,
   IServiceItem,
+  IServiceItemPricing,
   Service,
 } from '../models/service.model';
 import { ServiceCategory, VehicleType } from '../constants/service';
+import { HTTP_STATUS } from '../constants/http-status';
+import { AppError } from '../utils/app-error';
 
 export type ServiceFilters = {
   vehicleType?: VehicleType;
   category?: ServiceCategory;
   active?: boolean;
+};
+
+export type UpdateServiceItemInput = {
+  slug?: string;
+  id?: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  bannerImage?: string;
+  pricing?: Partial<IServiceItemPricing>;
+  durationMinutes?: number;
+  mandatory?: boolean;
+  selected?: boolean;
+  active?: boolean;
+  monthlyRule?: IServiceItem['monthlyRule'];
 };
 
 export type UpdateServiceInput = {
@@ -18,9 +35,8 @@ export type UpdateServiceInput = {
   category?: ServiceCategory;
   description?: string;
   bannerImage?: string;
-  image?: string;
   active?: boolean;
-  items?: IServiceItem[];
+  items?: UpdateServiceItemInput[];
 };
 
 export type ServiceResponse = {
@@ -30,7 +46,6 @@ export type ServiceResponse = {
   category: ServiceCategory;
   description: string;
   bannerImage: string;
-  image: string;
   active: boolean;
   items: IServiceItem[];
   createdAt: Date;
@@ -63,13 +78,76 @@ export async function findServiceById(
   return Service.findById(id);
 }
 
+function mergeServiceItems(
+  existingItems: IServiceItem[],
+  itemUpdates: UpdateServiceItemInput[],
+): IServiceItem[] {
+  const mergedItems = existingItems.map((item) => ({ ...item, pricing: { ...item.pricing } }));
+
+  for (const update of itemUpdates) {
+    const key = update.slug ?? update.id;
+    if (!key) {
+      throw new AppError(
+        'Each item update requires a slug or id',
+        HTTP_STATUS.BAD_REQUEST,
+      );
+    }
+
+    const index = mergedItems.findIndex((item) => item.slug === key);
+    if (index === -1) {
+      throw new AppError(
+        `Service item not found: ${key}. New items cannot be added.`,
+        HTTP_STATUS.BAD_REQUEST,
+      );
+    }
+
+    const current = mergedItems[index];
+    const { slug: _slug, id: _id, pricing, ...fields } = update;
+
+    mergedItems[index] = {
+      ...current,
+      ...fields,
+      pricing: pricing
+        ? {
+            oneTime: pricing.oneTime ?? current.pricing.oneTime,
+            monthly:
+              pricing.monthly !== undefined ? pricing.monthly : current.pricing.monthly,
+          }
+        : current.pricing,
+    };
+  }
+
+  return mergedItems;
+}
+
 export async function updateServiceById(
   id: string,
   input: UpdateServiceInput,
 ): Promise<IServiceDocument | null> {
+  const { items, ...serviceFields } = input;
+
+  if (!items) {
+    return Service.findByIdAndUpdate(
+      id,
+      { $set: serviceFields },
+      {
+        returnDocument: 'after',
+        runValidators: true,
+        context: 'query',
+      },
+    );
+  }
+
+  const service = await Service.findById(id).lean();
+  if (!service) {
+    return null;
+  }
+
+  const mergedItems = mergeServiceItems(service.items, items);
+
   return Service.findByIdAndUpdate(
     id,
-    { $set: input },
+    { $set: { ...serviceFields, items: mergedItems } },
     {
       returnDocument: 'after',
       runValidators: true,
@@ -78,7 +156,7 @@ export async function updateServiceById(
   );
 }
 
-export function toServiceResponse(service: IServiceDocument | IService): ServiceResponse {
+export function toServiceResponse(service: IServiceDocument): ServiceResponse {
   return {
     id: String(service._id),
     title: service.title,
@@ -86,7 +164,6 @@ export function toServiceResponse(service: IServiceDocument | IService): Service
     category: service.category,
     description: service.description,
     bannerImage: service.bannerImage,
-    image: service.image,
     active: service.active,
     items: service.items,
     createdAt: service.createdAt,

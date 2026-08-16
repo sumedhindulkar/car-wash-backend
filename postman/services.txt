@@ -14,10 +14,21 @@ GET /api/v1/services?vehicleType=bike&category=premium&active=true
 curl -X GET "http://localhost:6000/api/v1/services?vehicleType=bike&category=premium&active=true"
 
 PATCH /api/v1/services/:id
-curl -X PATCH "http://localhost:6000/api/v1/services/basic-car-wash" \
+curl -X PATCH "http://localhost:6000/api/v1/services/<serviceObjectId>" \
   -H "Content-Type: application/json" \
   -d "{
     \"title\": \"Basic Car Wash\",
     \"description\": \"A quick & effective wash for your everyday clean car.\",
-    \"active\": true
+    \"active\": true,
+    \"items\": [
+      {
+        \"slug\": \"bucket-wash\",
+        \"pricing\": { \"oneTime\": 275, \"monthly\": null }
+      },
+      {
+        \"slug\": \"air-freshener\",
+        \"title\": \"Air Freshener\",
+        \"pricing\": { \"oneTime\": 110 }
+      }
+    ]
   }"

@@ -1,4 +1,4 @@
-import { Document, Model, Schema, model } from 'mongoose';
+import { HydratedDocument, Model, Schema, model } from 'mongoose';
 import {
   MONTHLY_RULES,
   MonthlyRule,
@@ -14,7 +14,7 @@ export interface IServiceItemPricing {
 }
 
 export interface IServiceItem {
-  id: string;
+  slug: string;
   title: string;
   description: string;
   image: string;
@@ -28,20 +28,18 @@ export interface IServiceItem {
 }
 
 export interface IService {
-  _id: string;
   title: string;
   vehicleType: VehicleType;
   category: ServiceCategory;
   description: string;
   bannerImage: string;
-  image: string;
   active: boolean;
   items: IServiceItem[];
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface IServiceDocument extends IService, Document<string> {}
+export type IServiceDocument = HydratedDocument<IService>;
 
 const serviceItemPricingSchema = new Schema<IServiceItemPricing>(
   {
@@ -61,9 +59,9 @@ const serviceItemPricingSchema = new Schema<IServiceItemPricing>(
 
 const serviceItemSchema = new Schema<IServiceItem>(
   {
-    id: {
+    slug: {
       type: String,
-      required: [true, 'Item id is required'],
+      required: [true, 'Item slug is required'],
       trim: true,
     },
     title: {
@@ -121,13 +119,8 @@ const serviceItemSchema = new Schema<IServiceItem>(
   { _id: false },
 );
 
-const serviceSchema = new Schema<IServiceDocument>(
+const serviceSchema = new Schema<IService>(
   {
-    _id: {
-      type: String,
-      required: [true, 'Service id is required'],
-      trim: true,
-    },
     title: {
       type: String,
       required: [true, 'Service title is required'],
@@ -159,11 +152,6 @@ const serviceSchema = new Schema<IServiceDocument>(
       required: [true, 'Banner image is required'],
       trim: true,
     },
-    image: {
-      type: String,
-      required: [true, 'Image is required'],
-      trim: true,
-    },
     active: {
       type: Boolean,
       required: true,
@@ -177,11 +165,7 @@ const serviceSchema = new Schema<IServiceDocument>(
   },
   {
     timestamps: true,
-    _id: false,
   },
 );
 
-export const Service: Model<IServiceDocument> = model<IServiceDocument>(
-  'Service',
-  serviceSchema,
-);
+export const Service: Model<IService> = model<IService>('Service', serviceSchema);

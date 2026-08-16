@@ -1,19 +1,9 @@
 import servicesData from '../services.json';
 import { connectDatabase } from '../src/config/database';
-import { Service } from '../src/models/service.model';
+import { IService, Service } from '../src/models/service.model';
 import mongoose from 'mongoose';
 
-type SeedService = {
-  id: string;
-  title: string;
-  vehicleType: string;
-  category: string;
-  description: string;
-  bannerImage: string;
-  image: string;
-  active: boolean;
-  items: Array<Record<string, unknown>>;
-};
+type SeedService = Omit<IService, 'createdAt' | 'updatedAt'>;
 
 async function seedServices(): Promise<void> {
   await connectDatabase();
@@ -22,14 +12,12 @@ async function seedServices(): Promise<void> {
   let upsertedCount = 0;
 
   for (const service of services) {
-    const { id, ...fields } = service;
-
-    await Service.findByIdAndUpdate(
-      id,
+    const result = await Service.findOneAndUpdate(
       {
-        _id: id,
-        ...fields,
+        vehicleType: service.vehicleType,
+        category: service.category,
       },
+      { $set: service },
       {
         upsert: true,
         returnDocument: 'after',
@@ -39,7 +27,7 @@ async function seedServices(): Promise<void> {
     );
 
     upsertedCount += 1;
-    console.log(`Upserted service: ${id}`);
+    console.log(`Upserted service: ${result?.title} (${result?._id})`);
   }
 
   console.log(`Seed complete. Upserted ${upsertedCount} services.`);
