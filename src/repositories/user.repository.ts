@@ -12,7 +12,9 @@ export type UpdateUserInput = {
   email?: string;
 };
 
-export async function createUser(input: CreateUserInput): Promise<IUserDocument> {
+export async function createUser(
+  input: CreateUserInput,
+): Promise<IUserDocument> {
   return User.create(input);
 }
 
@@ -32,14 +34,20 @@ export async function updateUserById(
     return null;
   }
 
-  return User.findByIdAndUpdate(id, { $set: input }, {
-    new: true,
-    runValidators: true,
-    context: 'query',
-  });
+  return User.findByIdAndUpdate(
+    id,
+    { $set: input },
+    {
+      new: true,
+      runValidators: true,
+      context: 'query',
+    },
+  );
 }
 
-export async function deleteUserById(id: string): Promise<IUserDocument | null> {
+export async function deleteUserById(
+  id: string,
+): Promise<IUserDocument | null> {
   if (!Types.ObjectId.isValid(id)) {
     return null;
   }
@@ -47,7 +55,10 @@ export async function deleteUserById(id: string): Promise<IUserDocument | null> 
   return User.findByIdAndDelete(id);
 }
 
-export type UserResponse = Pick<IUser, 'phoneNumber' | 'name' | 'email' | 'createdAt' | 'updatedAt'> & {
+export type UserResponse = Pick<
+  IUser,
+  'phoneNumber' | 'name' | 'email' | 'createdAt' | 'updatedAt'
+> & {
   id: string;
 };
 

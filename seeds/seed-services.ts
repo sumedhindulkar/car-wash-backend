@@ -3,12 +3,10 @@ import { connectDatabase } from '../src/config/database';
 import { IService, Service } from '../src/models/service.model';
 import mongoose from 'mongoose';
 
-type SeedService = Omit<IService, 'createdAt' | 'updatedAt'>;
-
 async function seedServices(): Promise<void> {
   await connectDatabase();
 
-  const services = servicesData as SeedService[];
+  const services = servicesData as IService[];
   let upsertedCount = 0;
 
   for (const service of services) {

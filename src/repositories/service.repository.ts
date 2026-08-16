@@ -166,7 +166,7 @@ export function toServiceResponse(service: IServiceDocument): ServiceResponse {
     bannerImage: service.bannerImage,
     active: service.active,
     items: service.items,
-    createdAt: service.createdAt,
-    updatedAt: service.updatedAt,
+    createdAt: service.get('createdAt') as Date,
+    updatedAt: service.get('updatedAt') as Date,
   };
 }

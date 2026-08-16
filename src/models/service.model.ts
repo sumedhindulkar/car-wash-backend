@@ -35,8 +35,6 @@ export interface IService {
   bannerImage: string;
   active: boolean;
   items: IServiceItem[];
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export type IServiceDocument = HydratedDocument<IService>;
