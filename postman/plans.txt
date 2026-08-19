@@ -1,0 +1,57 @@
+POST /api/v1/plans/preview
+curl -X POST "http://localhost:6000/api/v1/plans/preview" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"serviceId\": \"SERVICE_OBJECT_ID\",
+    \"planType\": \"TWICE_A_WEEK\",
+    \"selectedFeatures\": [
+      \"rat-repellent\",
+      \"air-freshener\"
+    ]
+  }"
+
+POST /api/v1/plans/preview with a later per-wash add-on
+curl -X POST "http://localhost:6000/api/v1/plans/preview" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"serviceId\": \"SERVICE_OBJECT_ID\",
+    \"planType\": \"ALTERNATE_DAYS\",
+    \"selectedFeatures\": [
+      \"rat-repellent\"
+    ],
+    \"washModifications\": [
+      {
+        \"week\": 3,
+        \"washNumber\": 1,
+        \"addFeatures\": [\"interior-vacuum\"]
+      },
+      {
+        \"week\": 3,
+        \"washNumber\": 2,
+        \"addFeatures\": [\"interior-vacuum\"]
+      },
+      {
+        \"week\": 3,
+        \"washNumber\": 3,
+        \"addFeatures\": [\"interior-vacuum\"]
+      }
+    ]
+  }"
+
+POST /api/v1/plans/verify
+Send back the generated plan from /plans/preview. The backend regenerates from serviceId, planType, selectedFeatures, and washModifications, then compares schedule, items, prices, and durations.
+
+curl -X POST "http://localhost:6000/api/v1/plans/verify" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"serviceId\": \"SERVICE_OBJECT_ID\",
+    \"planType\": \"TWICE_A_WEEK\",
+    \"selectedFeatures\": [
+      \"rat-repellent\",
+      \"air-freshener\"
+    ],
+    \"weeks\": [],
+    \"totalPrice\": 0,
+    \"totalDurationMinutes\": 0,
+    \"totalWashes\": 8
+  }"
