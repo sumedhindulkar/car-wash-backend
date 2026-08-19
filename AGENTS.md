@@ -45,39 +45,6 @@ The backend is responsible for:
 
 The mobile application is only a client. The backend is the source of truth for business rules, pricing, availability, permissions, booking state, and payment state.
 
-## Current Booking Flow
-
-The main user journey is:
-
-````text
-User
- ↓
-Select Vehicle
- ↓
-Select Service
- ↓
-Select Optional Services / Add-ons
- ↓
-Choose Purchase Type
- ├── One-time
- └── Recurring / Monthly
-        ↓
-   Select Frequency
- ↓
-Calculate Price
- ↓
-Review Details
- ↓
-Select Available Slot
- ↓
-Payment
- ↓
-Booking / Subscription Confirmation
- ↓
-Appointment
- ↓
-Track Service Status
-
 ## 1. Purpose
 
 This document defines the engineering rules, architecture principles, coding standards, and development practices for this backend.
@@ -88,12 +55,12 @@ The application domain should be understood from the existing code, models, rout
 
 The goal is to build a backend that is:
 
-* Simple
-* Scalable
-* Maintainable
-* Testable
-* Production-ready
-* Easy for another developer or agent to understand
+- Simple
+- Scalable
+- Maintainable
+- Testable
+- Production-ready
+- Easy for another developer or agent to understand
 
 Prefer simple solutions over unnecessary abstractions.
 
@@ -103,11 +70,11 @@ Prefer simple solutions over unnecessary abstractions.
 
 The backend uses:
 
-* Node.js
-* Express.js
-* TypeScript
-* MongoDB
-* Mongoose
+- Node.js
+- Express.js
+- TypeScript
+- MongoDB
+- Mongoose
 
 Do not introduce another framework, database, message broker, cache, ORM, or major infrastructure component unless explicitly requested.
 
@@ -130,7 +97,7 @@ src/
 ├── types/
 ├── utils/
 └── app.ts
-````
+```
 
 Responsibilities:
 
@@ -250,7 +217,7 @@ Models should not contain unrelated application logic.
 
 # 5. Do Not Over-Engineer
 
-Do not introduce architecture merely because it is considered "enterprise".
+Do not introduce architecture merely because it is considered "enterprise". Always ask before adding any new libraries
 
 Avoid adding:
 

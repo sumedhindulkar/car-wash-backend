@@ -1,0 +1,34 @@
+name: Deploy Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::430993421808:role/github-car-wash-lambda-deploy
+          aws-region: ap-south-1
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy Lambda
+        run: |
+          zip -r lambda.zip . -x ".git/*"
+          aws lambda update-function-code \
+            --function-name car-wash-backend \
+            --zip-file fileb://lambda.zip
