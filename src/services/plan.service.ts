@@ -1,6 +1,6 @@
 import { PLAN_CONFIG, isPlanType } from '../constants/plan';
 import { HTTP_STATUS } from '../constants/http-status';
-import { IServiceItem } from '../models/service.model';
+import { IServiceDocument, IServiceItem } from '../models/service.model';
 import { findServiceById } from '../repositories/service.repository';
 import {
   GeneratePlanInput,
@@ -128,6 +128,10 @@ function parseGeneratePlanInput(input: unknown): GeneratePlanInput {
   };
 }
 
+function readCatalogItems(service: IServiceDocument): IServiceItem[] {
+  return service.toObject().items ?? [];
+}
+
 function buildActiveItemMap(items: IServiceItem[]): Map<string, IServiceItem> {
   const itemsBySlug = new Map<string, IServiceItem>();
 
@@ -138,6 +142,14 @@ function buildActiveItemMap(items: IServiceItem[]): Map<string, IServiceItem> {
   }
 
   return itemsBySlug;
+}
+
+function availableFeatureMessage(catalogSlugs: Set<string>): string {
+  if (catalogSlugs.size === 0) {
+    return 'none';
+  }
+
+  return [...catalogSlugs].join(', ');
 }
 
 function resolveFeature(
@@ -157,7 +169,10 @@ function resolveFeature(
     );
   }
 
-  throw new AppError(`Unknown feature: ${slug}`, HTTP_STATUS.BAD_REQUEST);
+  throw new AppError(
+    `Unknown feature: ${slug}. Available features: ${availableFeatureMessage(catalogSlugs)}`,
+    HTTP_STATUS.BAD_REQUEST,
+  );
 }
 
 function validateWashModifications(
@@ -197,10 +212,11 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
     throw new AppError('Service is not available', HTTP_STATUS.BAD_REQUEST);
   }
 
-  const catalogSlugs = new Set(service.items.map((item) => item.slug));
-  const itemsBySlug = buildActiveItemMap(service.items);
+  const items = readCatalogItems(service);
+  const catalogSlugs = new Set(items.map((item) => item.slug));
+  const itemsBySlug = buildActiveItemMap(items);
 
-  const mandatorySlugs = service.items
+  const mandatorySlugs = items
     .filter((item) => item.active && item.mandatory)
     .map((item) => item.slug);
 
