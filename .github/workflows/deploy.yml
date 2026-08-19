@@ -17,18 +17,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npm run build
+
+      - name: Build Lambda
+        run: npm run build:lambda
+
+      - name: Package Lambda
+        run: |
+          cd dist
+          zip lambda.zip lambda.js
+          mv lambda.zip ../lambda.zip
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::430993421808:role/github-car-wash-lambda-deploy
           aws-region: ap-south-1
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Deploy Lambda
         run: |
-          zip -r lambda.zip . -x ".git/*"
           aws lambda update-function-code \
             --function-name car-wash-backend \
             --zip-file fileb://lambda.zip
