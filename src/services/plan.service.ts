@@ -24,7 +24,7 @@ function agentLog(
 ): void {
   const payload = {
     sessionId: '907f1d',
-    runId: 'pre-fix',
+    runId: 'post-fix',
     hypothesisId,
     location,
     message,
@@ -339,14 +339,24 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
   const targetWash = priced.weeks
     .find((week) => week.week === targetWeek)
     ?.washes.find((wash) => wash.washNumber === includedInteriorWash.washNumber);
-  agentLog('C,D', 'plan.service.ts:generatePlan:afterPrice', 'schedule and priced target wash', {
+  agentLog('C,D,F', 'plan.service.ts:generatePlan:afterPrice', 'schedule and priced target wash', {
     scheduleTargetSlugs:
       schedule.weeks
         .find((week) => week.week === targetWeek)
         ?.washes.find((wash) => wash.washNumber === includedInteriorWash.washNumber)
         ?.itemSlugs ?? null,
     pricedTargetSlugs: targetWash?.items.map((item) => item.slug) ?? null,
+    week1Wash1Slugs:
+      priced.weeks
+        .find((week) => week.week === 1)
+        ?.washes.find((wash) => wash.washNumber === 1)
+        ?.items.map((item) => item.slug) ?? null,
     week3Wash1Slugs: week3Wash1?.items.map((item) => item.slug) ?? null,
+    week2Wash1Slugs:
+      priced.weeks
+        .find((week) => week.week === 2)
+        ?.washes.find((wash) => wash.washNumber === 1)
+        ?.items.map((item) => item.slug) ?? null,
     totalPrice: priced.totalPrice,
   });
   // #endregion

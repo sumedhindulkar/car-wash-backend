@@ -29,6 +29,10 @@ export const PLAN_INCLUDED_INTERIOR_ITEM_SLUG: Record<ServiceCategory, string> =
   premium: 'interior-vacuum',
 };
 
+export const PLAN_SELECTED_INTERIOR_SLUGS = new Set(
+  Object.values(PLAN_INCLUDED_INTERIOR_ITEM_SLUG),
+);
+
 export const PLAN_INCLUDED_INTERIOR_WASH: Record<
   PlanType,
   { week: number; washNumber: number }

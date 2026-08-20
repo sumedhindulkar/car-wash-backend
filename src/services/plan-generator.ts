@@ -1,19 +1,24 @@
-import { PLAN_CONFIG, PLAN_INCLUDED_INTERIOR_WASH, PlanType } from '../constants/plan';
-import { MonthlyRule } from '../constants/service';
+import {
+  PLAN_CONFIG,
+  PLAN_INCLUDED_INTERIOR_WASH,
+  PLAN_SELECTED_INTERIOR_SLUGS,
+  PlanType,
+} from '../constants/plan';
 import { IServiceItem } from '../models/service.model';
 import { PlanSchedule, WashModification } from '../types/plan';
 
 function shouldIncludeOptionalItem(
-  monthlyRule: MonthlyRule,
+  item: IServiceItem,
   week: number,
   washNumber: number,
 ): boolean {
-  if (monthlyRule === 'once') {
+  // Selected interior add-ons are once-per-plan (Week 1 / Wash 1), like monthlyRule "once".
+  // Complimentary interior on a later wash is applied separately via includedInteriorSlug.
+  if (PLAN_SELECTED_INTERIOR_SLUGS.has(item.slug) || item.monthlyRule === 'once') {
     return week === 1 && washNumber === 1;
   }
 
   // every_visit and multiple: include on every wash when selected at plan level.
-  // Per-wash extras (e.g. interior cleaning on week 3) are applied via washModifications.
   return true;
 }
 
@@ -45,7 +50,33 @@ export function generateSchedule(params: {
   }
 
   // #region agent log
-  fetch('http://127.0.0.1:7298/ingest/2a78f3ec-2eb3-4525-a9d6-74e467d63751',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'907f1d'},body:JSON.stringify({sessionId:'907f1d',runId:'pre-fix',hypothesisId:'C,E',location:'plan-generator.ts:generateSchedule',message:'generator interior inputs',data:{planType:params.planType,includedInteriorSlug:params.includedInteriorSlug??null,includedInteriorWash,modWeek3Wash1:modificationsByWeek.get(includedInteriorWash.week)?.get(includedInteriorWash.washNumber)??null,washModificationCount:params.washModifications.length},timestamp:Date.now()})}).catch(()=>{});
+  fetch('http://127.0.0.1:7298/ingest/2a78f3ec-2eb3-4525-a9d6-74e467d63751', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Debug-Session-Id': '907f1d',
+    },
+    body: JSON.stringify({
+      sessionId: '907f1d',
+      runId: 'post-fix',
+      hypothesisId: 'F',
+      location: 'plan-generator.ts:generateSchedule',
+      message: 'generator interior inputs',
+      data: {
+        planType: params.planType,
+        includedInteriorSlug: params.includedInteriorSlug ?? null,
+        includedInteriorWash,
+        selectedInteriorRules: params.selectedItems
+          .filter((item) => PLAN_SELECTED_INTERIOR_SLUGS.has(item.slug))
+          .map((item) => ({ slug: item.slug, monthlyRule: item.monthlyRule })),
+        modTarget:
+          modificationsByWeek
+            .get(includedInteriorWash.week)
+            ?.get(includedInteriorWash.washNumber) ?? null,
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
   // #endregion
 
   return {
@@ -63,7 +94,7 @@ export function generateSchedule(params: {
           }
 
           for (const item of params.selectedItems) {
-            if (shouldIncludeOptionalItem(item.monthlyRule, week, washNumber)) {
+            if (shouldIncludeOptionalItem(item, week, washNumber)) {
               appendUniqueSlug(itemSlugs, item.slug);
             }
           }
