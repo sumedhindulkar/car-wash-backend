@@ -1,8 +1,18 @@
+import { MONTHLY_PLAN_DISCOUNT_PERCENT } from '../constants/plan';
 import { IServiceItem } from '../models/service.model';
 import { PlanItem, PlanSchedule, PlanWeek } from '../types/plan';
 
+export function applyMonthlyPlanDiscount(price: number): number {
+  if (MONTHLY_PLAN_DISCOUNT_PERCENT <= 0) {
+    return Math.round(price);
+  }
+
+  return Math.round((price * (100 - MONTHLY_PLAN_DISCOUNT_PERCENT)) / 100);
+}
+
 export function getSubscriptionItemPrice(item: IServiceItem): number {
-  return item.pricing.monthly ?? item.pricing.oneTime;
+  const basePrice = item.pricing.monthly ?? item.pricing.oneTime;
+  return applyMonthlyPlanDiscount(basePrice);
 }
 
 export function priceSchedule(

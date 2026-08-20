@@ -1,4 +1,4 @@
-import { PLAN_CONFIG, isPlanType } from '../constants/plan';
+import { PLAN_CONFIG, MONTHLY_PLAN_DISCOUNT_PERCENT, isPlanType } from '../constants/plan';
 import { HTTP_STATUS } from '../constants/http-status';
 import { IServiceDocument, IServiceItem } from '../models/service.model';
 import { findServiceById } from '../repositories/service.repository';
@@ -244,6 +244,7 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
     serviceId: String(service._id),
     planType: parsed.planType,
     selectedFeatures: parsed.selectedFeatures,
+    discountPercent: MONTHLY_PLAN_DISCOUNT_PERCENT,
     weeks: priced.weeks,
     totalPrice: priced.totalPrice,
     totalDurationMinutes: priced.totalDurationMinutes,
@@ -269,6 +270,7 @@ function parseSubmittedPlan(input: unknown): GeneratedPlan {
     totalPrice?: unknown;
     totalDurationMinutes?: unknown;
     totalWashes?: unknown;
+    discountPercent?: unknown;
   };
 
   if (!Array.isArray(body.weeks)) {
@@ -284,6 +286,8 @@ function parseSubmittedPlan(input: unknown): GeneratedPlan {
     planType: parsedInput.planType,
     selectedFeatures: parsedInput.selectedFeatures,
     washModifications: parsedInput.washModifications,
+    discountPercent:
+      typeof body.discountPercent === 'number' ? body.discountPercent : NaN,
     weeks: body.weeks as GeneratedPlan['weeks'],
     totalPrice: body.totalPrice,
     totalDurationMinutes:

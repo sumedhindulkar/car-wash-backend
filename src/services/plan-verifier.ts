@@ -38,6 +38,10 @@ export function comparePlans(
     structureMismatch = true;
   }
 
+  if (calculated.discountPercent !== submitted.discountPercent) {
+    priceMismatch = true;
+  }
+
   const submittedWeeks = readWeeks(submitted.weeks);
 
   if (calculated.weeks.length !== submittedWeeks.length) {

@@ -39,6 +39,7 @@ export type GeneratedPlan = {
   planType: PlanType;
   selectedFeatures: string[];
   washModifications?: WashModification[];
+  discountPercent: number;
   weeks: PlanWeek[];
   totalPrice: number;
   totalDurationMinutes: number;
