@@ -1,4 +1,4 @@
-import { PLAN_CONFIG, PlanType } from '../constants/plan';
+import { PLAN_CONFIG, PLAN_INCLUDED_INTERIOR_WASH, PlanType } from '../constants/plan';
 import { MonthlyRule } from '../constants/service';
 import { IServiceItem } from '../models/service.model';
 import { PlanSchedule, WashModification } from '../types/plan';
@@ -28,8 +28,10 @@ export function generateSchedule(params: {
   mandatorySlugs: string[];
   selectedItems: IServiceItem[];
   washModifications: WashModification[];
+  includedInteriorSlug?: string;
 }): PlanSchedule {
   const { weeks, washesPerWeek } = PLAN_CONFIG[params.planType];
+  const includedInteriorWash = PLAN_INCLUDED_INTERIOR_WASH[params.planType];
   const modificationsByWeek = new Map<number, Map<number, string[]>>();
 
   for (const modification of params.washModifications) {
@@ -41,6 +43,10 @@ export function generateSchedule(params: {
     washes.set(modification.washNumber, existing);
     modificationsByWeek.set(modification.week, washes);
   }
+
+  // #region agent log
+  fetch('http://127.0.0.1:7298/ingest/2a78f3ec-2eb3-4525-a9d6-74e467d63751',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'907f1d'},body:JSON.stringify({sessionId:'907f1d',runId:'pre-fix',hypothesisId:'C,E',location:'plan-generator.ts:generateSchedule',message:'generator interior inputs',data:{planType:params.planType,includedInteriorSlug:params.includedInteriorSlug??null,includedInteriorWash,modWeek3Wash1:modificationsByWeek.get(includedInteriorWash.week)?.get(includedInteriorWash.washNumber)??null,washModificationCount:params.washModifications.length},timestamp:Date.now()})}).catch(()=>{});
+  // #endregion
 
   return {
     weeks: Array.from({ length: weeks }, (_, weekIndex) => {
@@ -66,6 +72,14 @@ export function generateSchedule(params: {
             modificationsByWeek.get(week)?.get(washNumber) ?? [];
           for (const slug of extraSlugs) {
             appendUniqueSlug(itemSlugs, slug);
+          }
+
+          if (
+            params.includedInteriorSlug &&
+            week === includedInteriorWash.week &&
+            washNumber === includedInteriorWash.washNumber
+          ) {
+            appendUniqueSlug(itemSlugs, params.includedInteriorSlug);
           }
 
           return { washNumber, itemSlugs };

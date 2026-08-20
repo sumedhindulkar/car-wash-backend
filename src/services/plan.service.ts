@@ -1,6 +1,7 @@
-import { PLAN_CONFIG, MONTHLY_PLAN_DISCOUNT_PERCENT, isPlanType } from '../constants/plan';
+import { PLAN_CONFIG, MONTHLY_PLAN_DISCOUNT_PERCENT, PLAN_INCLUDED_INTERIOR_ITEM_SLUG, PLAN_INCLUDED_INTERIOR_WASH, isPlanType } from '../constants/plan';
 import { HTTP_STATUS } from '../constants/http-status';
-import { IServiceDocument, IServiceItem } from '../models/service.model';
+import { ServiceCategory } from '../constants/service';
+import { IServiceItem } from '../models/service.model';
 import { findServiceById } from '../repositories/service.repository';
 import {
   GeneratePlanInput,
@@ -12,6 +13,43 @@ import { AppError } from '../utils/app-error';
 import { generateSchedule } from './plan-generator';
 import { priceSchedule } from './plan-pricing';
 import { comparePlans } from './plan-verifier';
+import { appendFileSync } from 'fs';
+import { join } from 'path';
+
+function agentLog(
+  hypothesisId: string,
+  location: string,
+  message: string,
+  data: Record<string, unknown>,
+): void {
+  const payload = {
+    sessionId: '907f1d',
+    runId: 'pre-fix',
+    hypothesisId,
+    location,
+    message,
+    data,
+    timestamp: Date.now(),
+  };
+  // #region agent log
+  fetch('http://127.0.0.1:7298/ingest/2a78f3ec-2eb3-4525-a9d6-74e467d63751', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Debug-Session-Id': '907f1d',
+    },
+    body: JSON.stringify(payload),
+  }).catch(() => {});
+  try {
+    appendFileSync(
+      join(process.cwd(), 'debug-907f1d.log'),
+      `${JSON.stringify(payload)}\n`,
+    );
+  } catch {
+    // ignore local debug log failures
+  }
+  // #endregion
+}
 
 function uniqueSlugs(slugs: string[]): string[] {
   const seen = new Set<string>();
@@ -128,8 +166,29 @@ function parseGeneratePlanInput(input: unknown): GeneratePlanInput {
   };
 }
 
-function readCatalogItems(service: IServiceDocument): IServiceItem[] {
-  return service.toObject().items ?? [];
+function includedInteriorItemSlug(
+  vehicleType: string,
+  category: string,
+  itemsBySlug: Map<string, IServiceItem>,
+): string | undefined {
+  if (vehicleType !== 'car') {
+    return undefined;
+  }
+
+  const preferred = PLAN_INCLUDED_INTERIOR_ITEM_SLUG[category as ServiceCategory];
+  if (preferred && itemsBySlug.has(preferred)) {
+    return preferred;
+  }
+
+  if (itemsBySlug.has('interior-vacuum')) {
+    return 'interior-vacuum';
+  }
+
+  if (itemsBySlug.has('interior-cleaning')) {
+    return 'interior-cleaning';
+  }
+
+  return undefined;
 }
 
 function buildActiveItemMap(items: IServiceItem[]): Map<string, IServiceItem> {
@@ -212,7 +271,7 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
     throw new AppError('Service is not available', HTTP_STATUS.BAD_REQUEST);
   }
 
-  const items = readCatalogItems(service);
+  const items = service.items ?? [];
   const catalogSlugs = new Set(items.map((item) => item.slug));
   const itemsBySlug = buildActiveItemMap(items);
 
@@ -231,14 +290,66 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
     catalogSlugs,
   );
 
+  const interiorSlug = includedInteriorItemSlug(
+    service.vehicleType,
+    service.category,
+    itemsBySlug,
+  );
+  const includedInteriorWash = PLAN_INCLUDED_INTERIOR_WASH[parsed.planType];
+  const washModifications = interiorSlug
+    ? [
+        ...parsed.washModifications,
+        {
+          week: includedInteriorWash.week,
+          washNumber: includedInteriorWash.washNumber,
+          addFeatures: [interiorSlug],
+        },
+      ]
+    : parsed.washModifications;
+
+  // #region agent log
+  agentLog('A,B,E', 'plan.service.ts:generatePlan', 'interior resolution before schedule', {
+    serviceId: String(service._id),
+    vehicleType: service.vehicleType,
+    category: service.category,
+    planType: parsed.planType,
+    itemSlugs: [...itemsBySlug.keys()],
+    hasInteriorVacuum: itemsBySlug.has('interior-vacuum'),
+    hasInteriorCleaning: itemsBySlug.has('interior-cleaning'),
+    interiorSlug: interiorSlug ?? null,
+    includedInteriorWash,
+    washModificationCount: washModifications.length,
+    washModifications,
+  });
+  // #endregion
+
   const schedule = generateSchedule({
     planType: parsed.planType,
     mandatorySlugs,
     selectedItems,
-    washModifications: parsed.washModifications,
+    washModifications,
+    includedInteriorSlug: interiorSlug,
   });
 
   const priced = priceSchedule(schedule, itemsBySlug);
+
+  // #region agent log
+  const week3Wash1 = priced.weeks.find((week) => week.week === 3)?.washes.find((wash) => wash.washNumber === 1);
+  const targetWeek = includedInteriorWash.week;
+  const targetWash = priced.weeks
+    .find((week) => week.week === targetWeek)
+    ?.washes.find((wash) => wash.washNumber === includedInteriorWash.washNumber);
+  agentLog('C,D', 'plan.service.ts:generatePlan:afterPrice', 'schedule and priced target wash', {
+    scheduleTargetSlugs:
+      schedule.weeks
+        .find((week) => week.week === targetWeek)
+        ?.washes.find((wash) => wash.washNumber === includedInteriorWash.washNumber)
+        ?.itemSlugs ?? null,
+    pricedTargetSlugs: targetWash?.items.map((item) => item.slug) ?? null,
+    week3Wash1Slugs: week3Wash1?.items.map((item) => item.slug) ?? null,
+    totalPrice: priced.totalPrice,
+  });
+  // #endregion
 
   const plan: GeneratedPlan = {
     serviceId: String(service._id),

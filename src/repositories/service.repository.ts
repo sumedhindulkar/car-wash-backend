@@ -1,5 +1,6 @@
 import {
   IServiceDocument,
+  IService,
   IServiceItem,
   IServiceItemPricing,
   Service,
@@ -74,8 +75,8 @@ export async function findServices(
 
 export async function findServiceById(
   id: string,
-): Promise<IServiceDocument | null> {
-  return Service.findById(id);
+): Promise<(IService & { _id: unknown }) | null> {
+  return Service.findById(id).lean();
 }
 
 function mergeServiceItems(
