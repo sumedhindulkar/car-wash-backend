@@ -1,0 +1,44 @@
+POST /api/v1/workers
+Creates a worker. Does not return aadharNumber.
+
+curl -X POST "http://localhost:6000/api/v1/workers" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Rahul Sharma\",
+    \"phone\": \"9876543210\",
+    \"aadharNumber\": \"123456789012\",
+    \"zoneId\": \"ZONE_ID\",
+    \"primaryLocation\": {
+      \"type\": \"Point\",
+      \"coordinates\": [72.8347, 19.1364]
+    }
+  }"
+
+PATCH /api/v1/workers/:identifier
+Updates worker details by MongoDB ObjectId or phone number.
+Phone number cannot be updated. Does not return aadharNumber.
+
+curl -X PATCH "http://localhost:6000/api/v1/workers/WORKER_ID" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Rahul S\",
+    \"aadharNumber\": \"123456789012\",
+    \"zoneId\": \"ZONE_ID\",
+    \"primaryLocation\": {
+      \"type\": \"Point\",
+      \"coordinates\": [72.8347, 19.1364]
+    }
+  }"
+
+curl -X PATCH "http://localhost:6000/api/v1/workers/9876543210" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Rahul S\"
+  }"
+
+GET /api/v1/workers/:identifier
+Lookup by MongoDB ObjectId or phone number. Does not return aadharNumber.
+
+curl -X GET "http://localhost:6000/api/v1/workers/WORKER_ID"
+
+curl -X GET "http://localhost:6000/api/v1/workers/9876543210"

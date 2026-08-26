@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { z, ZodType } from 'zod';
 import { HTTP_STATUS } from '../constants/http-status';
 import {
+  AADHAAR_REGEX,
   EMAIL_REGEX,
   INDIAN_PHONE_REGEX,
   INDIAN_PINCODE_REGEX,
@@ -91,6 +92,11 @@ export const indianPincodeSchema = nonEmptyString(
 export const indianPhoneSchema = nonEmptyString('Phone number is required').regex(
   INDIAN_PHONE_REGEX,
   'Phone number must be a valid Indian mobile number (10 digits starting with 6–9, optionally prefixed with +91 or 91)',
+);
+
+export const aadhaarSchema = nonEmptyString('Aadhaar number is required').regex(
+  AADHAAR_REGEX,
+  'Aadhaar number must be a valid 12-digit number',
 );
 
 export const emailSchema = z

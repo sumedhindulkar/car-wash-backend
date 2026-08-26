@@ -21,7 +21,7 @@ function isMongoDuplicateKeyError(error: unknown): error is MongoDuplicateKeyErr
 
 function duplicateFieldMessage(error: MongoDuplicateKeyError): string {
   const fields = Object.keys(error.keyPattern ?? {});
-  if (fields.includes('phoneNumber')) {
+  if (fields.includes('phoneNumber') || fields.includes('phone')) {
     return 'Phone number already exists';
   }
   if (fields.includes('email')) {
