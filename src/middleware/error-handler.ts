@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { ZodError } from 'zod';
 import { HTTP_STATUS } from '../constants/http-status';
 import { ErrorResponse } from '../types/api-response';
 import { AppError } from '../utils/app-error';
@@ -26,6 +27,9 @@ function duplicateFieldMessage(error: MongoDuplicateKeyError): string {
   if (fields.includes('email')) {
     return 'Email already exists';
   }
+  if (fields.includes('pincodes')) {
+    return 'Pincode already belongs to another active zone';
+  }
   return 'Duplicate value';
 }
 
@@ -41,6 +45,15 @@ export function errorHandler(
       message: err.message,
     };
     res.status(err.statusCode).json(body);
+    return;
+  }
+
+  if (err instanceof ZodError) {
+    const body: ErrorResponse = {
+      success: false,
+      message: err.issues[0]?.message ?? 'Validation failed',
+    };
+    res.status(HTTP_STATUS.BAD_REQUEST).json(body);
     return;
   }
 

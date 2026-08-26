@@ -1,0 +1,42 @@
+POST /api/v1/zones
+curl -X POST "http://localhost:6000/api/v1/zones" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Andheri West\",
+    \"pincodes\": [\"400053\", \"400058\", \"400061\"],
+    \"location\": {
+      \"type\": \"Point\",
+      \"coordinates\": [72.8347, 19.1364]
+    },
+    \"serviceRadiusKm\": 5,
+    \"workerIds\": []
+  }"
+
+GET /api/v1/zones/:zoneId
+curl -X GET "http://localhost:6000/api/v1/zones/ZONE_ID"
+
+PATCH /api/v1/zones/:zoneId
+curl -X PATCH "http://localhost:6000/api/v1/zones/ZONE_ID" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Andheri West Central\",
+    \"pincodes\": [\"400053\", \"400058\"],
+    \"location\": {
+      \"type\": \"Point\",
+      \"coordinates\": [72.8347, 19.1364]
+    },
+    \"serviceRadiusKm\": 6,
+    \"workerIds\": [],
+    \"active\": true
+  }"
+
+DELETE /api/v1/zones/:zoneId
+Soft-deactivates the zone (sets active=false).
+
+curl -X DELETE "http://localhost:6000/api/v1/zones/ZONE_ID"
+
+GET /api/v1/zones/by-pincode/:pincode
+curl -X GET "http://localhost:6000/api/v1/zones/by-pincode/400053"
+
+GET /api/v1/zones/by-location?lat=&lng=
+curl -X GET "http://localhost:6000/api/v1/zones/by-location?lat=19.1364&lng=72.8347"

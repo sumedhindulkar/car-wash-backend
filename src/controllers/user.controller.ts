@@ -8,6 +8,10 @@ import {
 } from '../repositories/user.repository';
 import { SuccessResponse } from '../types/api-response';
 import { AppError } from '../utils/app-error';
+import {
+  parseCreateUserInput,
+  parseUpdateUserInput,
+} from '../validation/user.schema';
 
 export async function create(
   req: Request,
@@ -15,16 +19,8 @@ export async function create(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const phoneNumber = req.body?.phoneNumber;
-    if (typeof phoneNumber !== 'string' || phoneNumber.trim() === '') {
-      throw new AppError('Phone number is required', HTTP_STATUS.BAD_REQUEST);
-    }
-
-    const user = await createUser({
-      phoneNumber: phoneNumber.trim(),
-      name: req.body?.name,
-      email: req.body?.email,
-    });
+    const input = parseCreateUserInput(req.body);
+    const user = await createUser(input);
 
     const body: SuccessResponse<ReturnType<typeof toUserResponse>> = {
       success: true,
@@ -43,23 +39,9 @@ export async function update(
   next: NextFunction,
 ): Promise<void> {
   try {
-    if (req.body?.phoneNumber !== undefined) {
-      throw new AppError('Phone number cannot be updated', HTTP_STATUS.BAD_REQUEST);
-    }
-
-    const { name, email } = req.body ?? {};
-    if (name === undefined && email === undefined) {
-      throw new AppError(
-        'Provide at least one field to update: name or email',
-        HTTP_STATUS.BAD_REQUEST,
-      );
-    }
-
+    const updates = parseUpdateUserInput(req.body);
     const userId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const user = await updateUserById(userId, {
-      ...(name !== undefined ? { name } : {}),
-      ...(email !== undefined ? { email } : {}),
-    });
+    const user = await updateUserById(userId, updates);
     if (!user) {
       throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
     }

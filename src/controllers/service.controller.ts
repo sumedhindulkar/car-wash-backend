@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import { ServiceCategory, VehicleType } from '../constants/service';
 import { HTTP_STATUS } from '../constants/http-status';
 import {
   findServices,
@@ -8,6 +7,10 @@ import {
 } from '../repositories/service.repository';
 import { SuccessResponse } from '../types/api-response';
 import { AppError } from '../utils/app-error';
+import {
+  parseListServicesQuery,
+  parseUpdateServiceInput,
+} from '../validation/service.schema';
 
 export async function list(
   req: Request,
@@ -15,13 +18,8 @@ export async function list(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { vehicleType, category, active } = req.query;
-
-    const services = await findServices({
-      ...(typeof vehicleType === 'string' ? { vehicleType: vehicleType as VehicleType } : {}),
-      ...(typeof category === 'string' ? { category: category as ServiceCategory } : {}),
-      ...(active === 'true' ? { active: true } : active === 'false' ? { active: false } : {}),
-    });
+    const filters = parseListServicesQuery(req.query);
+    const services = await findServices(filters);
 
     const body: SuccessResponse<ReturnType<typeof toServiceResponse>[]> = {
       success: true,
@@ -40,16 +38,7 @@ export async function update(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { id, _id, ...updates } = req.body ?? {};
-
-    if (id !== undefined || _id !== undefined) {
-      throw new AppError('Service id cannot be updated', HTTP_STATUS.BAD_REQUEST);
-    }
-
-    if (Object.keys(updates).length === 0) {
-      throw new AppError('Provide at least one field to update', HTTP_STATUS.BAD_REQUEST);
-    }
-
+    const updates = parseUpdateServiceInput(req.body);
     const serviceId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const service = await updateServiceById(serviceId, updates);
     if (!service) {

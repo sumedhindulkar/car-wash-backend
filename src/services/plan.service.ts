@@ -1,4 +1,4 @@
-import { PLAN_CONFIG, MONTHLY_PLAN_DISCOUNT_PERCENT, PLAN_INCLUDED_INTERIOR_ITEM_SLUG, PLAN_INCLUDED_INTERIOR_WASH, isPlanType } from '../constants/plan';
+import { PLAN_CONFIG, MONTHLY_PLAN_DISCOUNT_PERCENT, PLAN_INCLUDED_INTERIOR_ITEM_SLUG, PLAN_INCLUDED_INTERIOR_WASH } from '../constants/plan';
 import { HTTP_STATUS } from '../constants/http-status';
 import { ServiceCategory } from '../constants/service';
 import { IServiceItem } from '../models/service.model';
@@ -10,6 +10,10 @@ import {
   WashModification,
 } from '../types/plan';
 import { AppError } from '../utils/app-error';
+import {
+  parseGeneratePlanInput,
+  parseSubmittedPlan,
+} from '../validation/plan.schema';
 import { generateSchedule } from './plan-generator';
 import { priceSchedule } from './plan-pricing';
 import { comparePlans } from './plan-verifier';
@@ -49,121 +53,6 @@ function agentLog(
     // ignore local debug log failures
   }
   // #endregion
-}
-
-function uniqueSlugs(slugs: string[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const slug of slugs) {
-    if (!seen.has(slug)) {
-      seen.add(slug);
-      result.push(slug);
-    }
-  }
-
-  return result;
-}
-
-function readStringArray(value: unknown, fieldName: string): string[] {
-  if (value === undefined) {
-    return [];
-  }
-
-  if (!Array.isArray(value) || value.some((entry) => typeof entry !== 'string')) {
-    throw new AppError(`${fieldName} must be an array of slugs`, HTTP_STATUS.BAD_REQUEST);
-  }
-
-  return uniqueSlugs(
-    value.map((slug) => slug.trim()).filter((slug) => slug.length > 0),
-  );
-}
-
-function readWashModifications(value: unknown): WashModification[] {
-  if (value === undefined) {
-    return [];
-  }
-
-  if (!Array.isArray(value)) {
-    throw new AppError(
-      'washModifications must be an array',
-      HTTP_STATUS.BAD_REQUEST,
-    );
-  }
-
-  return value.map((entry, index) => {
-    if (typeof entry !== 'object' || entry === null) {
-      throw new AppError(
-        `washModifications[${index}] must be an object`,
-        HTTP_STATUS.BAD_REQUEST,
-      );
-    }
-
-    const modification = entry as {
-      week?: unknown;
-      washNumber?: unknown;
-      addFeatures?: unknown;
-    };
-
-    if (
-      typeof modification.week !== 'number' ||
-      !Number.isInteger(modification.week) ||
-      modification.week < 1
-    ) {
-      throw new AppError(
-        `washModifications[${index}].week must be a positive integer`,
-        HTTP_STATUS.BAD_REQUEST,
-      );
-    }
-
-    if (
-      typeof modification.washNumber !== 'number' ||
-      !Number.isInteger(modification.washNumber) ||
-      modification.washNumber < 1
-    ) {
-      throw new AppError(
-        `washModifications[${index}].washNumber must be a positive integer`,
-        HTTP_STATUS.BAD_REQUEST,
-      );
-    }
-
-    return {
-      week: modification.week,
-      washNumber: modification.washNumber,
-      addFeatures: readStringArray(
-        modification.addFeatures,
-        `washModifications[${index}].addFeatures`,
-      ),
-    };
-  });
-}
-
-function parseGeneratePlanInput(input: unknown): GeneratePlanInput {
-  if (typeof input !== 'object' || input === null) {
-    throw new AppError('Request body is required', HTTP_STATUS.BAD_REQUEST);
-  }
-
-  const body = input as {
-    serviceId?: unknown;
-    planType?: unknown;
-    selectedFeatures?: unknown;
-    washModifications?: unknown;
-  };
-
-  if (typeof body.serviceId !== 'string' || body.serviceId.trim() === '') {
-    throw new AppError('serviceId is required', HTTP_STATUS.BAD_REQUEST);
-  }
-
-  if (typeof body.planType !== 'string' || !isPlanType(body.planType)) {
-    throw new AppError('Invalid plan type', HTTP_STATUS.BAD_REQUEST);
-  }
-
-  return {
-    serviceId: body.serviceId.trim(),
-    planType: body.planType,
-    selectedFeatures: readStringArray(body.selectedFeatures, 'selectedFeatures'),
-    washModifications: readWashModifications(body.washModifications),
-  };
 }
 
 function includedInteriorItemSlug(
@@ -377,44 +266,6 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
   }
 
   return plan;
-}
-
-function parseSubmittedPlan(input: unknown): GeneratedPlan {
-  const parsedInput = parseGeneratePlanInput(input);
-
-  if (typeof input !== 'object' || input === null) {
-    throw new AppError('Request body is required', HTTP_STATUS.BAD_REQUEST);
-  }
-
-  const body = input as {
-    weeks?: unknown;
-    totalPrice?: unknown;
-    totalDurationMinutes?: unknown;
-    totalWashes?: unknown;
-    discountPercent?: unknown;
-  };
-
-  if (!Array.isArray(body.weeks)) {
-    throw new AppError('Submitted plan weeks are required', HTTP_STATUS.BAD_REQUEST);
-  }
-
-  if (typeof body.totalPrice !== 'number') {
-    throw new AppError('Submitted plan totalPrice is required', HTTP_STATUS.BAD_REQUEST);
-  }
-
-  return {
-    serviceId: parsedInput.serviceId,
-    planType: parsedInput.planType,
-    selectedFeatures: parsedInput.selectedFeatures,
-    washModifications: parsedInput.washModifications,
-    discountPercent:
-      typeof body.discountPercent === 'number' ? body.discountPercent : NaN,
-    weeks: body.weeks as GeneratedPlan['weeks'],
-    totalPrice: body.totalPrice,
-    totalDurationMinutes:
-      typeof body.totalDurationMinutes === 'number' ? body.totalDurationMinutes : NaN,
-    totalWashes: typeof body.totalWashes === 'number' ? body.totalWashes : NaN,
-  };
 }
 
 export async function verifyPlan(input: unknown): Promise<VerifyPlanResult> {
