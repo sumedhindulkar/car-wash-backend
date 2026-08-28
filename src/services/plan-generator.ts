@@ -49,36 +49,6 @@ export function generateSchedule(params: {
     modificationsByWeek.set(modification.week, washes);
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7298/ingest/2a78f3ec-2eb3-4525-a9d6-74e467d63751', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': '907f1d',
-    },
-    body: JSON.stringify({
-      sessionId: '907f1d',
-      runId: 'post-fix',
-      hypothesisId: 'F',
-      location: 'plan-generator.ts:generateSchedule',
-      message: 'generator interior inputs',
-      data: {
-        planType: params.planType,
-        includedInteriorSlug: params.includedInteriorSlug ?? null,
-        includedInteriorWash,
-        selectedInteriorRules: params.selectedItems
-          .filter((item) => PLAN_SELECTED_INTERIOR_SLUGS.has(item.slug))
-          .map((item) => ({ slug: item.slug, monthlyRule: item.monthlyRule })),
-        modTarget:
-          modificationsByWeek
-            .get(includedInteriorWash.week)
-            ?.get(includedInteriorWash.washNumber) ?? null,
-      },
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-  // #endregion
-
   return {
     weeks: Array.from({ length: weeks }, (_, weekIndex) => {
       const week = weekIndex + 1;

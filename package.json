@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "seed:services": "tsx seeds/seed-services.ts",
-    "test": "tsx --test tests/zone.test.ts tests/worker.test.ts",
+    "test": "tsx --test tests/zone.test.ts tests/worker.test.ts tests/booking.test.ts",
+    "test:booking": "tsx --test tests/booking.test.ts",
     "build:lambda": "esbuild lambda.ts --bundle --platform=node --target=node22 --outfile=dist/lambda.js"
   },
   "keywords": [],

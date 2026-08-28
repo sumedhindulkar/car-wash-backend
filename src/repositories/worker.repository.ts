@@ -58,6 +58,10 @@ export async function findWorkerByPhone(phone: string): Promise<IWorkerDocument 
   return Worker.findOne({ phone });
 }
 
+export async function countWorkersByZone(zoneId: Types.ObjectId): Promise<number> {
+  return Worker.countDocuments({ zoneId });
+}
+
 export async function updateWorkerById(
   id: string,
   input: UpdateWorkerRecordInput,

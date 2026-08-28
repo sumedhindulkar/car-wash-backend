@@ -1,4 +1,9 @@
-import { PLAN_CONFIG, MONTHLY_PLAN_DISCOUNT_PERCENT, PLAN_INCLUDED_INTERIOR_ITEM_SLUG, PLAN_INCLUDED_INTERIOR_WASH } from '../constants/plan';
+import {
+  PLAN_CONFIG,
+  MONTHLY_PLAN_DISCOUNT_PERCENT,
+  PLAN_INCLUDED_INTERIOR_ITEM_SLUG,
+  PLAN_INCLUDED_INTERIOR_WASH,
+} from '../constants/plan';
 import { HTTP_STATUS } from '../constants/http-status';
 import { ServiceCategory } from '../constants/service';
 import { IServiceItem } from '../models/service.model';
@@ -17,43 +22,7 @@ import {
 import { generateSchedule } from './plan-generator';
 import { priceSchedule } from './plan-pricing';
 import { comparePlans } from './plan-verifier';
-import { appendFileSync } from 'fs';
-import { join } from 'path';
-
-function agentLog(
-  hypothesisId: string,
-  location: string,
-  message: string,
-  data: Record<string, unknown>,
-): void {
-  const payload = {
-    sessionId: '907f1d',
-    runId: 'post-fix',
-    hypothesisId,
-    location,
-    message,
-    data,
-    timestamp: Date.now(),
-  };
-  // #region agent log
-  fetch('http://127.0.0.1:7298/ingest/2a78f3ec-2eb3-4525-a9d6-74e467d63751', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Debug-Session-Id': '907f1d',
-    },
-    body: JSON.stringify(payload),
-  }).catch(() => {});
-  try {
-    appendFileSync(
-      join(process.cwd(), 'debug-907f1d.log'),
-      `${JSON.stringify(payload)}\n`,
-    );
-  } catch {
-    // ignore local debug log failures
-  }
-  // #endregion
-}
+import { buildActiveItemMap, resolveServiceItem } from './service-catalog';
 
 function includedInteriorItemSlug(
   vehicleType: string,
@@ -80,49 +49,6 @@ function includedInteriorItemSlug(
   return undefined;
 }
 
-function buildActiveItemMap(items: IServiceItem[]): Map<string, IServiceItem> {
-  const itemsBySlug = new Map<string, IServiceItem>();
-
-  for (const item of items) {
-    if (item.active) {
-      itemsBySlug.set(item.slug, item);
-    }
-  }
-
-  return itemsBySlug;
-}
-
-function availableFeatureMessage(catalogSlugs: Set<string>): string {
-  if (catalogSlugs.size === 0) {
-    return 'none';
-  }
-
-  return [...catalogSlugs].join(', ');
-}
-
-function resolveFeature(
-  slug: string,
-  itemsBySlug: Map<string, IServiceItem>,
-  catalogSlugs: Set<string>,
-): IServiceItem {
-  const item = itemsBySlug.get(slug);
-  if (item) {
-    return item;
-  }
-
-  if (catalogSlugs.has(slug)) {
-    throw new AppError(
-      `Feature is not available: ${slug}`,
-      HTTP_STATUS.BAD_REQUEST,
-    );
-  }
-
-  throw new AppError(
-    `Unknown feature: ${slug}. Available features: ${availableFeatureMessage(catalogSlugs)}`,
-    HTTP_STATUS.BAD_REQUEST,
-  );
-}
-
 function validateWashModifications(
   washModifications: WashModification[],
   planType: GeneratePlanInput['planType'],
@@ -143,7 +69,7 @@ function validateWashModifications(
     }
 
     for (const slug of modification.addFeatures) {
-      resolveFeature(slug, itemsBySlug, catalogSlugs);
+      resolveServiceItem(slug, itemsBySlug, catalogSlugs);
     }
   }
 }
@@ -169,7 +95,7 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
     .map((item) => item.slug);
 
   const selectedItems = parsed.selectedFeatures
-    .map((slug) => resolveFeature(slug, itemsBySlug, catalogSlugs))
+    .map((slug) => resolveServiceItem(slug, itemsBySlug, catalogSlugs))
     .filter((item) => !item.mandatory);
 
   validateWashModifications(
@@ -196,22 +122,6 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
       ]
     : parsed.washModifications;
 
-  // #region agent log
-  agentLog('A,B,E', 'plan.service.ts:generatePlan', 'interior resolution before schedule', {
-    serviceId: String(service._id),
-    vehicleType: service.vehicleType,
-    category: service.category,
-    planType: parsed.planType,
-    itemSlugs: [...itemsBySlug.keys()],
-    hasInteriorVacuum: itemsBySlug.has('interior-vacuum'),
-    hasInteriorCleaning: itemsBySlug.has('interior-cleaning'),
-    interiorSlug: interiorSlug ?? null,
-    includedInteriorWash,
-    washModificationCount: washModifications.length,
-    washModifications,
-  });
-  // #endregion
-
   const schedule = generateSchedule({
     planType: parsed.planType,
     mandatorySlugs,
@@ -221,34 +131,6 @@ export async function generatePlan(input: unknown): Promise<GeneratedPlan> {
   });
 
   const priced = priceSchedule(schedule, itemsBySlug);
-
-  // #region agent log
-  const week3Wash1 = priced.weeks.find((week) => week.week === 3)?.washes.find((wash) => wash.washNumber === 1);
-  const targetWeek = includedInteriorWash.week;
-  const targetWash = priced.weeks
-    .find((week) => week.week === targetWeek)
-    ?.washes.find((wash) => wash.washNumber === includedInteriorWash.washNumber);
-  agentLog('C,D,F', 'plan.service.ts:generatePlan:afterPrice', 'schedule and priced target wash', {
-    scheduleTargetSlugs:
-      schedule.weeks
-        .find((week) => week.week === targetWeek)
-        ?.washes.find((wash) => wash.washNumber === includedInteriorWash.washNumber)
-        ?.itemSlugs ?? null,
-    pricedTargetSlugs: targetWash?.items.map((item) => item.slug) ?? null,
-    week1Wash1Slugs:
-      priced.weeks
-        .find((week) => week.week === 1)
-        ?.washes.find((wash) => wash.washNumber === 1)
-        ?.items.map((item) => item.slug) ?? null,
-    week3Wash1Slugs: week3Wash1?.items.map((item) => item.slug) ?? null,
-    week2Wash1Slugs:
-      priced.weeks
-        .find((week) => week.week === 2)
-        ?.washes.find((wash) => wash.washNumber === 1)
-        ?.items.map((item) => item.slug) ?? null,
-    totalPrice: priced.totalPrice,
-  });
-  // #endregion
 
   const plan: GeneratedPlan = {
     serviceId: String(service._id),

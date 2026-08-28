@@ -1,0 +1,22 @@
+POST /api/v1/customers
+curl -X POST "http://localhost:6000/api/v1/customers" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Ananya Iyer\",
+    \"phone\": \"9876543210\"
+  }"
+
+GET /api/v1/customers/:identifier
+The identifier is either the customer ObjectId or the phone number.
+
+curl "http://localhost:6000/api/v1/customers/CUSTOMER_OBJECT_ID"
+curl "http://localhost:6000/api/v1/customers/9876543210"
+
+PATCH /api/v1/customers/:identifier
+Only the name can be updated. The phone number is immutable.
+
+curl -X PATCH "http://localhost:6000/api/v1/customers/9876543210" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Ananya I\"
+  }"
