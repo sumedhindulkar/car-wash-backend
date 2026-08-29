@@ -26,6 +26,12 @@ export async function findUserById(id: string): Promise<IUserDocument | null> {
   return User.findById(id);
 }
 
+export async function findUserByPhoneNumber(
+  phoneNumber: string,
+): Promise<IUserDocument | null> {
+  return User.findOne({ phoneNumber });
+}
+
 export async function updateUserById(
   id: string,
   input: UpdateUserInput,

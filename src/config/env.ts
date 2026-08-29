@@ -12,8 +12,15 @@ function requireEnv(name: string): string {
   return value;
 }
 
+const nodeEnv = process.env.NODE_ENV ?? 'development';
+const isProduction = nodeEnv === 'production';
+
 export const env = {
-  nodeEnv: process.env.NODE_ENV ?? 'development',
+  nodeEnv,
+  isProduction,
   port: Number(process.env.PORT) || 3000,
   mongodbUri: requireEnv('MONGODB_URI'),
+  firebaseProjectId: isProduction
+    ? requireEnv('FIREBASE_PROJECT_ID')
+    : process.env.FIREBASE_PROJECT_ID,
 } as const;
