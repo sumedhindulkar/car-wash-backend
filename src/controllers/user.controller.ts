@@ -21,7 +21,11 @@ export async function create(
 ): Promise<void> {
   try {
     const input = parseCreateUserInput(req.body);
-    const phoneNumber = req.firebasePhoneNumber ?? input.phoneNumber;
+    const phoneNumber = req.firebasePhoneNumber;
+    if (!phoneNumber) {
+      throw new AppError('Authentication required', HTTP_STATUS.UNAUTHORIZED);
+    }
+
     const existing = await findUserByPhoneNumber(phoneNumber);
     if (existing) {
       const body: SuccessResponse<ReturnType<typeof toUserResponse>> = {

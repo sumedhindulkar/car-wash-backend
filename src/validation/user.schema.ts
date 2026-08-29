@@ -2,12 +2,10 @@ import { z } from 'zod';
 import {
   emailSchema,
   forbiddenIdFields,
-  indianPhoneSchema,
   parseSchema,
 } from './common';
 
 export const createUserSchema = z.object({
-  phoneNumber: indianPhoneSchema,
   name: z.preprocess(
     (value) => (typeof value === 'string' && value.trim() === '' ? undefined : value),
     z
