@@ -22,6 +22,7 @@ export async function create(
   try {
     const input = parseCreateUserInput(req.body);
     const phoneNumber = req.firebasePhoneNumber;
+    console.log('phoneNumber:', phoneNumber);
     if (!phoneNumber) {
       throw new AppError('Authentication required', HTTP_STATUS.UNAUTHORIZED);
     }

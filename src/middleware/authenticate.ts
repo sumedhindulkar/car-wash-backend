@@ -14,11 +14,13 @@ declare module 'express-serve-static-core' {
 }
 
 function readBearerToken(header: string | undefined): string {
+  console.log('header:', header);
   if (!header || !header.startsWith('Bearer ')) {
     throw new AppError('Authentication required', HTTP_STATUS.UNAUTHORIZED);
   }
 
   const token = header.slice('Bearer '.length).trim();
+  console.log('token:', token);
   if (!token) {
     throw new AppError('Authentication required', HTTP_STATUS.UNAUTHORIZED);
   }
@@ -32,7 +34,7 @@ async function verifiedPhoneNumber(req: Request): Promise<string | undefined> {
   }
 
   const token = readBearerToken(req.headers.authorization);
-
+  console.log('Authorization:', req.headers?.authorization);
   let phoneNumber: string | undefined;
   try {
     const decoded = await getFirebaseAuth().verifyIdToken(token);
